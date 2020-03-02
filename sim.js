@@ -1,21 +1,26 @@
-var testLayer;
-var testNetwork;
-var hiddenLayers = [2];
-// provide optional config object (or undefined). Defaults shown.
-const config = {
-	binaryThresh: 0.5,
-	hiddenLayers: hiddenLayers, // array of ints for the sizes of the hidden layers in the network
-	callback: (info) => {
-		console.log(info.error);
-		testNetwork.updateSynapticWeights(info.weights);
-	},
-	iterations: 10000,
-	activation: "sigmoid", // supported activation types: ['sigmoid', 'relu', 'leaky-relu', 'tanh'],
-	leakyReluAlpha: 0.01 // supported for activation type 'leaky-relu'
-};
-// create a simple feed forward neural network with backpropagation
-const net = new brain.NeuralNetwork(config)
-	.trainAsync(
+var modelNetwork;
+var hiddenLayers = [];
+var net;
+var maxIters = 10000;
+var config = {};
+
+function runNetwork() {
+	activation = $('#activation').val();
+	config = {
+		binaryThresh: 0.5,
+		hiddenLayers: hiddenLayers, // array of ints for the sizes of the hidden layers in the network
+		callback: (info) => {
+			$('#error').val(info.error);
+			$('#iterations').val(info.iterations);
+			console.log(info.weights);
+			modelNetwork.updateSynapticWeights(info.weights);
+		},
+		iterations: maxIters,
+		activation: activation, // supported activation types: ['sigmoid', 'relu', 'leaky-relu', 'tanh'],
+		leakyReluAlpha: 0.01 // supported for activation type 'leaky-relu'
+	}
+	net = new brain.NeuralNetwork()
+	net.trainAsync(
 		[
 			{ input: [0, 0], output: [0] },
 			{ input: [0, 1], output: [1] },
@@ -23,19 +28,22 @@ const net = new brain.NeuralNetwork(config)
 			{ input: [1, 1], output: [0] }
 		],
 		config
-	)
-	.then(res => {
-		console.log(res);
+	).then((res) => {
+		$('#error').val(res.error);
+		$('#iterations').val(res.iterations);
 	});
+}
 
 function setup() {
-	createCanvas(windowWidth - 25, windowHeight - 25);
-	testNetwork = new Network(5);
+	width = window.innerWidth;
+	createCanvas(width, 500);
+	modelNetwork = new Network(hiddenLayers.length + 2);
 }
 
 function draw() {
+	width = window.innerWidth;
 	background(155);
-	testNetwork.render();
+	modelNetwork.render();
 }
 
 class Neuron {
@@ -80,7 +88,7 @@ class Network {
 		this.layers = [];
 		this.synapses = [];
 		this.numLayers = layers;
-		this.splitWidth = width / (layers + 1);
+		this.splitWidth = width / (layers + 2);
 		// Create the layers
 		this.layers.push(new Layer(this.splitWidth, 2));
 		for (let i = 0; i < hiddenLayers.length; i++) {

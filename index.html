@@ -1,12 +1,109 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Neural Sim</title>
-	</head>
-	
-	<body>
-		<script src="https://cdn.jsdelivr.net/npm/p5@0.10.2/lib/p5.js"></script>
-		<script src="brain-browser.min.js"></script>
-		<script src="./sim.js"></script>
-	</body>
+
+<head>
+	<title>Neural Sim</title>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="row">
+			<div class="col text-center mt-5 mb-5">
+				<h1>Neural Simulation</h1>
+				<h4>Abhishek Kasireddy</h4>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-2 gutter"></div>
+			<div class="col-md-4" id="inputsGroup">
+				<div class="form-group">
+					<label for="maxIterations">Maximum Number of Iterations (Max 10,000)</label>
+					<input default=10000 class="form-control" type="number" name="maxIterations" id="maxIterations"
+						min="1" max="10000">
+				</div>
+				<div class="form-group">
+					<label for="hiddenLayers">Number of Hidden Layers (Max 4)</label>
+					<input class="form-control" type="number" name="hiddenLayers" id="hiddenLayers" min="1" max="4">
+				</div>
+				<div class="form-group">
+					<label for="activation">Number of Hidden Layers (Max 4)</label>
+					<select class="form-control" type="number" name="activation" id="activation">
+						<option>sigmoid</option>
+						<option>relu</option>
+						<option>tanh</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="error">Error</label>
+					<input default=1 disabled class="form-control" type="number" name="error" id="error">
+				</div>
+				<div class="form-group">
+					<label for="iterations">Iterations</label>
+					<input default=0 disabled class="form-control" type="number" name="iterations" id="iterations">
+				</div>
+			</div>
+			<div class="col-md-4" id="layersGroup">
+			</div>
+			<div class="col-md-2 gutter"></div>
+		</div>
+
+		<div class="row text-center mb-5">
+			<div class="col">
+				<button id="runBtn" class="btn btn-primary">Run</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+		integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"
+		integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous">
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/p5@0.10.2/lib/p5.js"></script>
+	<script src="./brain-browser.min.js"></script>
+	<script src="./sim.js"></script>
+	<script>
+		$('#hiddenLayers').bind('input propertychange', function () {
+			let hiddenLayersInput = $(this).val();
+			// hiddenLayers = [hiddenLayersInput];
+			// setup();
+			if (hiddenLayersInput > 4) {
+				hiddenLayersInput = 4;
+				$(this).val(hiddenLayersInput);
+			}
+			$('.generated').remove();
+			for (let i = 0; i < hiddenLayersInput; i++) {
+				let formGroup = '<div class="form-group generated">' +
+					'<label for="hiddenLayerNeurons' + i + '">Layer ' + (i + 1) + ' Neurons</label>' +
+					'<input class="form-control" type="number" min="1" max="5" name="hiddenLayerNeurons' + i + '"/>';
+				'</div>';
+				$("#layersGroup").append(formGroup);
+			}
+		});
+
+		$("#runBtn").on("click", (e) => {
+			e.preventDefault();
+			hiddenLayers = [];
+			$(".generated input[type=number]").each((idx, inp) => {
+				let val = $(inp).val();
+				if (val > 5) {
+					val = 5;
+					$(inp).val(5);
+				} else if (val < 1) {
+					val = 1;
+					$(inp).val(1);
+				}
+				hiddenLayers.push(val);
+			});
+			setup();
+			runNetwork();
+		});
+	</script>
+</body>
+
 </html>
